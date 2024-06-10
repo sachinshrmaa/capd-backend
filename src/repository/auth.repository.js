@@ -12,6 +12,18 @@ export const getUserByEmail = async (email) => {
   }
 };
 
+export const getUserById = async (userId) => {
+  const query = "SELECT * FROM Users WHERE user_id = $1";
+  const values = [userId];
+
+  const { rows } = await getPool().query(query, values);
+  if (rows.length) {
+    return rows[0];
+  } else {
+    return null;
+  }
+};
+
 export const createUser = async (userData) => {
   const query =
     "INSERT INTO Users (name, email, password, role) VALUES ($1, $2, $3, $4)";

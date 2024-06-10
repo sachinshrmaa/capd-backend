@@ -50,13 +50,13 @@ const LogIn = async (req, res) => {
   if (!bycrypt.compareSync(password, user.password)) {
     return res.status(400).json({ message: "Invalid credentials" });
   } else {
-    const token = generateToken({ userId: user.id });
+    const token = generateToken({ userId: user.user_id });
     res.cookie("accessToken", token, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
       origin: "localhost",
     });
-    user.password = null;
+    user.password = undefined;
     return res.status(200).json({ message: "Logged in successfully", user });
   }
 };
