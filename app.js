@@ -7,6 +7,7 @@ import authRoutes from "./src/routes/auth.routes.js";
 import studentsRoutes from "./src/routes/students.routes.js";
 import teachersRoutes from "./src/routes/teachers.routes.js";
 import academicsRoutes from "./src/routes/academics.routes.js";
+import attendanceRoutes from "./src/routes/attendance.routes.js";
 
 // config
 dotenv.config();
@@ -26,6 +27,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/students", studentsRoutes);
 app.use("/api/v1/teachers", teachersRoutes);
 app.use("/api/v1/academics", academicsRoutes);
+app.use("/api/v1/attendance", attendanceRoutes);
 
 // server port
 app.listen(process.env.PORT || 3000, () => {
