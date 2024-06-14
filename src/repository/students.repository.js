@@ -12,3 +12,15 @@ export const getAllStudents = async (department, batch) => {
     return [];
   }
 };
+
+export const getStudentDetails = async (userId) => {
+  const query = "SELECT * from students where user_id = $1";
+  const values = [userId];
+
+  const { rows } = await getPool().query(query, values);
+  if (rows.length) {
+    return rows;
+  } else {
+    return [];
+  }
+};

@@ -23,10 +23,10 @@ export const getAllBatches = async (department) => {
   }
 };
 
-export const getAllSubjects = async (department, semester) => {
+export const getAllSubjects = async (departmentId, semesterId) => {
   const query =
-    "SELECT s.name AS subject_name, s.code, u.name AS teacher_name FROM subjects s JOIN departments d ON s.department_id = d.department_id JOIN semesters sem ON s.semester_id = sem.semester_id LEFT JOIN teacher_subjects stm ON s.subject_id = stm.subject_id LEFT JOIN teachers t ON stm.teacher_id = t.teacher_id LEFT JOIN users u ON t.user_id = u.user_id WHERE d.name = $1 AND sem.name = $2;";
-  const values = [department, semester];
+    "SELECT s.subject_id, s.name AS subject_name, s.code, u.name AS teacher_name FROM subjects s JOIN departments d ON s.department_id = d.department_id JOIN semesters sem ON s.semester_id = sem.semester_id LEFT JOIN teacher_subjects stm ON s.subject_id = stm.subject_id LEFT JOIN teachers t ON stm.teacher_id = t.teacher_id LEFT JOIN users u ON t.user_id = u.user_id WHERE d.department_id = $1 AND sem.semester_id = $2;";
+  const values = [departmentId, semesterId];
 
   const { rows } = await getPool().query(query, values);
   if (rows.length) {

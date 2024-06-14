@@ -1,6 +1,7 @@
 import bycrypt from "bcryptjs";
 import { createUser, getUserByEmail } from "../repository/auth.repository.js";
 import { generateToken } from "../utils/auth.utils.js";
+import { getStudentDetails } from "../repository/students.repository.js";
 
 const SignUp = async (req, res) => {
   const { name, email, password, role } = req.body;
@@ -56,6 +57,17 @@ const LogIn = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000,
       origin: "localhost",
     });
+
+    if (user.role === "Student") {
+      const student = await getStudentDetails(user.user_id);
+      user.password = undefined;
+      let newData = { ...user, ...student[0] };
+      console.log(student[0]);
+      return res
+        .status(200)
+        .json({ message: "Logged in successfully", user: newData });
+    }
+
     user.password = undefined;
     return res.status(200).json({ message: "Logged in successfully", user });
   }

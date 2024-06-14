@@ -38,15 +38,15 @@ const ListBatches = async (req, res) => {
 const ListSemesters = async (req, res) => {};
 
 const ListSubjects = async (req, res) => {
-  const { department, semester } = req.body;
-  if (!department || !semester) {
+  const { departmentId, semesterId } = req.body;
+  if (!departmentId || !semesterId) {
     return res
       .status(400)
       .json({ message: "Department and semester are required" });
   }
 
   try {
-    const subjects = await getAllSubjects(department, semester);
+    const subjects = await getAllSubjects(departmentId, semesterId);
     if (!subjects) {
       return res.status(404).json({ message: "No subjects found" });
     }
