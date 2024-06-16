@@ -25,3 +25,47 @@ export const getAllTeacherSubjects = async (userId) => {
     return [];
   }
 };
+
+export const addTeacher = async (name, email, password, departmentId) => {
+  const client = await getPool().connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // Insert into Users table
+    const userQuery = `
+      INSERT INTO Users (name, email, password, role)
+      VALUES ($1, $2, $3, 'Teacher')
+      RETURNING user_id;
+    `;
+    const userValues = [name, email, password];
+    const userResult = await client.query(userQuery, userValues);
+    const userId = userResult.rows[0].user_id;
+
+    // Insert into Teachers table
+    const teacherQuery = `
+      INSERT INTO Teachers (user_id, department_id)
+      VALUES ($1, $2);
+    `;
+    const teacherValues = [userId, departmentId];
+    await client.query(teacherQuery, teacherValues);
+
+    await client.query("COMMIT");
+    return { user_id: userId, name, email, department_id: departmentId };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+export const assignTeacherSubject = async (teacherId, subjectId) => {
+  const query = `
+    insert into teacher_subjects (teacher_id, subject_id) values($1, $2)
+  `;
+  const values = [teacherId, subjectId];
+  const { rows } = await getPool().query(query, values);
+  return rows;
+};
+

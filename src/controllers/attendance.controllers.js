@@ -69,13 +69,13 @@ const ListStudentOverallAttendance = async (req, res) => {
 };
 
 const ListSubjectOverallAttendance = async (req, res) => {
-  const { subjectId } = req.body;
-  if (!subjectId) {
-    return res.status(400).json({ message: "subject id is required" });
+  const { subjectCode } = req.body;
+  if (!subjectCode) {
+    return res.status(400).json({ message: "subject code is required" });
   }
 
   try {
-    const attendance = await getOverallStudentsSubjectAttendance(subjectId);
+    const attendance = await getOverallStudentsSubjectAttendance(subjectCode);
     res.status(200).json({ attendance });
   } catch (error) {
     res.status(500).json({ message: error.message });

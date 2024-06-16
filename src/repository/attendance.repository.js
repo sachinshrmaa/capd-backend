@@ -65,10 +65,10 @@ export const getStudentOverallSubjectAttendance = async (
   }
 };
 
-export const getOverallStudentsSubjectAttendance = async (subjectId) => {
+export const getOverallStudentsSubjectAttendance = async (subjectCode) => {
   const query =
-    "SELECT a.roll_no, u.name, COUNT(*) AS total_classes, COUNT(CASE WHEN a.status = 'Absent' THEN 1 ELSE NULL END) AS absent_classes FROM attendance a JOIN students s2 ON a.roll_no = s2.roll_no JOIN users u ON s2.user_id = u.user_id JOIN subjects s ON a.subject_id = s.subject_id WHERE a.subject_id = $1 GROUP BY a.roll_no, u.name";
-  const values = [subjectId];
+    "SELECT a.roll_no, u.name, COUNT(*) AS total_classes, COUNT(CASE WHEN a.status = 'Absent' THEN 1 ELSE NULL END) AS absent_classes FROM attendance a JOIN students s2 ON a.roll_no = s2.roll_no JOIN users u ON s2.user_id = u.user_id JOIN subjects s ON a.subject_id = s.subject_id WHERE s.code = $1 GROUP BY a.roll_no, u.name";
+  const values = [subjectCode];
 
   const { rows } = await getPool().query(query, values);
   if (rows.length) {
