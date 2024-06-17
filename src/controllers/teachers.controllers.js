@@ -1,7 +1,9 @@
 import {
   addTeacher,
+  addTeacherWards,
   assignTeacherSubject,
   getAllTeacherSubjects,
+  getAllTeacherWards,
   getAllTeachers,
 } from "../repository/teachers.repository.js";
 import bycrypt from "bcryptjs";
@@ -79,6 +81,56 @@ const AssignTeacherSubject = async (req, res) => {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });
   }
-}
+};
 
-export { ListTeachers, ListTeacherSubjects, AddTeacher, AssignTeacherSubject };
+const ListTeacherWards = async (req, res) => {
+  const userId = req.user.user_id;
+  if (!userId) {
+    return res.status(401).json({ message: "Please login" });
+  }
+
+  try {
+    const wards = await getAllTeacherWards(userId);
+    if (!wards) {
+      return res.status(404).json({ message: "No wards found" });
+    }
+    res.status(200).json({ wards: wards });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const AddTeacherWards = async (req, res) => {
+  const { students } = req.body;
+  const userId = req.user.user_id;
+  if (!userId) {
+    return res.status(401).json({ message: "Please login" });
+  }
+
+  if (!students) {
+    return res.status(400).json({ message: "Students are required" });
+  }
+
+  try {
+    const wards = await addTeacherWards(userId, students);
+    // if (!wards) {
+    //   return res.status(404).json({ message: "No wards found" });
+    // }
+    res
+      .status(201)
+      .json({ message: "Wards added successfully.", wards: wards });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export {
+  ListTeachers,
+  ListTeacherSubjects,
+  AddTeacher,
+  AssignTeacherSubject,
+  ListTeacherWards,
+  AddTeacherWards,
+};

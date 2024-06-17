@@ -68,3 +68,49 @@ export const assignTeacherSubject = async (teacherId, subjectId) => {
   const { rows } = await getPool().query(query, values);
   return rows;
 };
+
+export const getAllTeacherWards = async (teacherId) => {
+  const query = `select u.name as student_name, tg.roll_no , sem.name as sem_name from teacher_guardians tg join students s on tg.roll_no = s.roll_no join users u on s.user_id = u.user_id join semesters sem on s.semester_id = sem.semester_id join teachers t on tg.teacher_id = t.teacher_id where t.user_id  = $1`;
+  const values = [teacherId];
+
+  const { rows } = await getPool().query(query, values);
+  if (rows.length) {
+    return rows;
+  } else {
+    return [];
+  }
+};
+
+export const addTeacherWards = async (teacherId, rollNumbers) => {
+  if (!Array.isArray(rollNumbers) || rollNumbers.length === 0) {
+    throw new Error("rollNumbers must be a non-empty array");
+  }
+
+  const values = [];
+  const placeholders = rollNumbers
+    .map((rollNo, index) => {
+      values.push(rollNo);
+      return `((SELECT teacher_id FROM Teachers WHERE user_id = $${
+        rollNumbers.length + 1
+      }), $${index + 1})`;
+    })
+    .join(", ");
+
+  const query = `INSERT INTO teacher_guardians (teacher_id, roll_no) VALUES ${placeholders}`;
+
+  const pool = getPool();
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN"); // Start transaction
+    const { rowCount } = await client.query(query, [...values, teacherId]);
+    await client.query("COMMIT"); // Commit transaction
+    return { success: true, insertedRows: rowCount };
+  } catch (err) {
+    await client.query("ROLLBACK"); // Rollback transaction in case of error
+    console.error("Error inserting students:", err);
+    return { success: false, error: err.message };
+  } finally {
+    client.release();
+  }
+};
