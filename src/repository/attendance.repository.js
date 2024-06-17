@@ -1,24 +1,18 @@
 import { getClient, getPool } from "../db/postgres.js";
 
 export const logSubjectAttendance = async (attendanceData) => {
-  const { absentStudents, presentStudents, subjectId, semesterId, date } =
+  const { absentStudents, presentStudents, subjectId, semesterId } =
     attendanceData;
 
   const presentValues = presentStudents
-    .map(
-      (roll_no) =>
-        `('${roll_no}', ${subjectId}, ${semesterId}, '${date}', 'Present')`
-    )
+    .map((roll_no) => `('${roll_no}', ${subjectId}, ${semesterId}, 'Present')`)
     .join(", ");
   const absentValues = absentStudents
-    .map(
-      (roll_no) =>
-        `('${roll_no}', ${subjectId}, ${semesterId}, '${date}', 'Absent')`
-    )
+    .map((roll_no) => `('${roll_no}', ${subjectId}, ${semesterId}, 'Absent')`)
     .join(", ");
 
   const query = `
-    INSERT INTO Attendance (roll_no, subject_id, semester_id, attendance_date, status)
+    INSERT INTO Attendance (roll_no, subject_id, semester_id, status)
     VALUES ${presentValues}${
     presentValues && absentValues ? ", " : ""
   }${absentValues}
@@ -78,11 +72,13 @@ export const getOverallStudentsSubjectAttendance = async (subjectCode) => {
   }
 };
 
-export const getStudentsBySubjectCode = async (subjectCode) => {
-  const query =
-    "SELECT s.roll_no, u.name , ss.subject_id, s.semester_id FROM Students s join Users u on s.user_id =u.user_id JOIN Student_Subjects ss ON s.roll_no  = ss.roll_no WHERE ss.subject_id IN (    SELECT subject_id  FROM Subjects where code=$1)";
+export const getStudentsBySubjectCode = async (subjectId) => {
+  const query = `select s.roll_no, u."name" , sub.subject_id, s.semester_id  from students s
+join users u on s.user_id = u.user_id 
+join subjects sub on s.semester_id = sub.semester_id
+where sub.subject_id = $1`;
 
-  const values = [subjectCode];
+  const values = [subjectId];
   const { rows } = await getPool().query(query, values);
   if (rows.length) {
     return rows;
