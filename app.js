@@ -16,10 +16,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CORS middleware
-// app.use(cors({ origin: "http://localhost:5173", credentials: true }));
-app.use(
-  cors({ origin: "https://capd-frontend-beta.vercel.app", credentials: true })
-);
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+// app.use(
+//   cors({ origin: "https://capd-frontend-beta.vercel.app", credentials: true })
+// );
 
 app.get("/ping", async (req, res) => {
   res.json({ message: "pong" });

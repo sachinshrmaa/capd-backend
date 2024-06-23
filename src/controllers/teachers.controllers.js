@@ -5,6 +5,8 @@ import {
   getAllTeacherSubjects,
   getAllTeacherWards,
   getAllTeachers,
+  getAllWardsAttendance,
+  logCounsellingSessions,
 } from "../repository/teachers.repository.js";
 import bycrypt from "bcryptjs";
 
@@ -126,6 +128,55 @@ const AddTeacherWards = async (req, res) => {
   }
 };
 
+const AddWardsCounsellingLog = async (req, res) => {
+  const userId = req.user.user_id;
+  const { absentStudents, presentStudents, remarks } = req.body;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Please login" });
+  }
+
+  if (!absentStudents || !presentStudents || !remarks) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  const attendanceData = {
+    absentStudents,
+    presentStudents,
+    userId,
+    remarks,
+  };
+
+  try {
+    const logs = await logCounsellingSessions(attendanceData);
+    res
+      .status(201)
+      .json({ message: "Wards logs added successfully.", logs: logs });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const ListWardsAttendanceLogs = async (req, res) => {
+  const userId = req.user.user_id;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Please login" });
+  }
+
+  try {
+    const wardsLogs = await getAllWardsAttendance(userId);
+    if (!wardsLogs) {
+      return res.status(404).json({ message: "No sessions found" });
+    }
+    res.status(200).json({ attendance: wardsLogs });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export {
   ListTeachers,
   ListTeacherSubjects,
@@ -133,4 +184,6 @@ export {
   AssignTeacherSubject,
   ListTeacherWards,
   AddTeacherWards,
+  AddWardsCounsellingLog,
+  ListWardsAttendanceLogs,
 };

@@ -114,3 +114,60 @@ export const addTeacherWards = async (teacherId, rollNumbers) => {
     client.release();
   }
 };
+
+export const logCounsellingSessions = async (counsellingData) => {
+  const { absentStudents, presentStudents, userId, remarks } = counsellingData;
+
+  const presentValues = presentStudents
+    .map(
+      (roll_no) =>
+        `('${roll_no}', (SELECT teacher_id FROM Teachers WHERE user_id = ${userId}), 'Present', '${remarks}')`
+    )
+    .join(", ");
+
+  const absentValues = absentStudents
+    .map(
+      (roll_no) =>
+        `('${roll_no}', (SELECT teacher_id FROM Teachers WHERE user_id = ${userId}), 'Absent', '${remarks}')`
+    )
+    .join(", ");
+
+  const values = [presentValues, absentValues].filter(Boolean).join(", ");
+
+  const query = `
+    INSERT INTO Counselling (roll_no, teacher_id, status, remarks)
+    VALUES ${values}
+    RETURNING *;`;
+
+  try {
+    const client = await getPool().connect();
+    const result = await client.query(query);
+    client.release();
+    console.log(`Inserted ${result.rowCount} counselling records.`);
+    return result.rows;
+  } catch (err) {
+    console.error("Error logging counselling sessions:", err);
+    throw err;
+  }
+};
+
+export const getAllWardsAttendance = async (userId) => {
+  const query = `SELECT 
+	u."name",
+    c.roll_no,
+    COUNT(CASE WHEN status = 'Present' THEN 1 END) AS present_count,
+    COUNT(CASE WHEN status = 'Absent' THEN 1 END) AS absent_count
+FROM Counselling c
+join students s on c.roll_no = s.roll_no
+join users u on s.user_id = u.user_id
+WHERE teacher_id = (SELECT teacher_id FROM Teachers WHERE user_id = $1)
+GROUP BY c.roll_no, u."name" ;`;
+  const values = [userId];
+
+  const { rows } = await getPool().query(query, values);
+  if (rows.length) {
+    return rows;
+  } else {
+    return [];
+  }
+};
