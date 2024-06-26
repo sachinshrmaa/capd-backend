@@ -61,7 +61,7 @@ const LogIn = async (req, res) => {
     //   domain: process.env.NODE_ENV === 'production' ? 'sachinbuilds.in' : 'localhost'
     // });
 
-    res.cookie("accessToken", accessToken, {
+    res.cookie("accessToken", token, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 1 day
       secure: process.env.NODE_ENV === "prod", // Ensure secure cookies in production
