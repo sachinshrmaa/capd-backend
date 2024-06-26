@@ -66,7 +66,8 @@ const LogIn = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000, // 1 day
       secure: process.env.NODE_ENV === "prod", // Ensure secure cookies in production
       sameSite: "None", // Set to None for cross-site cookies
-      domain: process.env.NODE_ENV === "prod" ? "sachinbuilds.in" : "localhost",
+      domain:
+        process.env.NODE_ENV === "prod" ? ".sachinbuilds.in" : "localhost",
     });
 
     if (user.role === "Student") {
