@@ -16,9 +16,24 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CORS middleware
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+const allowedOrigins = ["https://capd.sachinbuilds.in"];
+
+// CORS options
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true, // Allow credentials (cookies, authorization headers, TLS client certificates)
+};
+
+app.use(cors(corsOptions));
+//app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 // app.use(
-//   cors({ origin: "https://capd-frontend-beta.vercel.app", credentials: true })
+//   cors({ origin: "https://capd.sachinbuilds.in", credentials: true })
 // );
 
 app.get("/ping", async (req, res) => {
