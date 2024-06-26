@@ -16,7 +16,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CORS middleware
-const allowedOrigins = ["https://capd.sachinbuilds.in"];
+const allowedOrigins = [
+  "https://capd.sachinbuilds.in",
+  "http://localhost:5173",
+];
 
 // CORS options
 const corsOptions = {
